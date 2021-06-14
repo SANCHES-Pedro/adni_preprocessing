@@ -14,9 +14,9 @@ Alzheimer’s Disease Neuroimaging Initiative **ADNI** T1-weighted MRI pre-proce
 
 ### Histograms
 
- <img src="assets/raw_hist.png" width="40%"/>  
+ <img src="assets/raw_hist.png" width="30%"/>  
  ------->    
- <img src="assets/processed_hist.png" width="40%"/>
+ <img src="assets/processed_hist.png" width="30%"/>
 
  <br><br>
 
@@ -38,13 +38,13 @@ Alzheimer’s Disease Neuroimaging Initiative **ADNI** T1-weighted MRI pre-proce
 For downloading the dataset, we refer the user to the [ADNI website ](http://adni.loni.usc.edu). You will need to apply for the data with a brief description of your project. Upon acceptance (which should take only a few days), you will download the images through the [LONI Image and Data Archive](https://ida.loni.usc.edu). After login in and selecting the ADNI dataset, you will need to download at least two files:
 
  1. Summary spreadsheet
-	 2. Download > Study Data > Data&Database > Key ADNI tables merged into one table (file)
+    1. Download > Study Data > Data&Database > Key ADNI tables merged into one table (file)
  2. MRI Images
-	 3.  Download > Image Collections > Other Shared Collections
-		 4.  ADNI1_Screening_1.5T
-		 5. ADNI1_Complete_1Yr_1.5T
-		 6. ADNI1_Complete_2Yr_1.5T
-		 7. ADNI1_Complete_3Yr_1.5T
+    1. Download > Image Collections > Other Shared Collections
+        1. ADNI1_Screening_1.5T
+        2. ADNI1_Complete_1Yr_1.5T
+        3. ADNI1_Complete_2Yr_1.5T
+        4. ADNI1_Complete_3Yr_1.5T
 
 Unzip the imaging folders and save them in a single folder called "raw_data" which will have the following structure:
 
