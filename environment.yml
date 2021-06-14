@@ -1,0 +1,9 @@
+name: adni
+channels:
+  - defaults
+dependencies:
+  - jupyter
+  - matplotlib
+  - pandas
+  - simpleitk
+prefix: /home/pedro/miniconda3/envs/adni
