@@ -5,7 +5,7 @@ import time
 import datetime
 import SimpleITK as sitk
 from typing import List
-
+from get_config import get_config_dict
 
 def get_unique_image_file(subject_protocol_folder: List[Path]) -> np.array:
     # the inversion [::-1] is done so the most preprocessed data is used
@@ -72,16 +72,12 @@ def remove_nii_files(path: Path):
 
 def main():
     total_start = time.time()
-
-    data_path = Path(r"/media/pedro/Data/PhD/UoE/Data/ADNI")
-    raw_data_path = data_path / "raw_data"
-
-    resolution_mm = 2
-    reference_atlas_location = Path(f'/usr/local/fsl/data/standard/MNI152_T1_{resolution_mm}mm_brain.nii.gz')
+    
+    config = get_config_dict()
 
     re_process = False
 
-    subject_folder_list = list(raw_data_path.glob('*'))
+    subject_folder_list = list(config["data_path"].glob('*'))
     # subjects_list = [subject_folder.name for subject_folder in subject_folder_list]
     nb_subjects = len(subject_folder_list)
     nb_images = 0
@@ -101,7 +97,7 @@ def main():
                 continue
 
             start = time.time()
-            preprocessed_image_path_fsl = run_fsl_processing(image_path, preprocessed_image_path, reference_atlas_location)
+            preprocessed_image_path_fsl = run_fsl_processing(image_path, preprocessed_image_path, config["reference_atlas_location"])
             preprocessed_image_np = load_np_image(preprocessed_image_path_fsl)
             normalized_image_np = intensity_normalization(preprocessed_image_np)
             cropped_normalized_image_np = cropping(normalized_image_np)
