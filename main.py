@@ -6,6 +6,7 @@ import datetime
 import SimpleITK as sitk
 from typing import List
 from get_config import get_config_dict
+from PIL import Image
 
 def get_unique_image_file(subject_protocol_folder: List[Path]) -> np.array:
     # the inversion [::-1] is done so the most preprocessed data is used
@@ -60,10 +61,19 @@ def cropping(image: np.array, axial_size: int = 90, central_crop_along_z: bool =
     return cropped_image
 
 
-def save_np(image_np, image_path):
-    preprocessed_image_path = str(image_path).replace("raw_data", "preprocessed_data").replace(".nii", "")
+def save_np(image_np, preprocessed_image_path):
+    # preprocessed_image_path = preprocessed_image_path[:preprocessed_image_path.rfind(".")]
+    preprocessed_image_path = str(preprocessed_image_path).replace(".nii.gz", "")
+
     data_dict = {"image": image_np}
     np.savez_compressed(preprocessed_image_path, data_dict) # saving into .npz
+
+def save_2d(image_np, preprocessed_image_path):
+    # preprocessed_image_path = str(preprocessed_image_path)[:str(preprocessed_image_path).rfind(".")]
+    new_preprocessed_image_path = str(preprocessed_image_path).replace(".nii.gz", "")
+    for slice in range(image_np.shape[0]):
+        Image.fromarray(image_np[slice]).save(new_preprocessed_image_path + f"_slice{slice}.tiff")
+
 
 def remove_nii_files(path: Path):
     for file in path.parent.glob('**/*.nii*'):
@@ -75,9 +85,8 @@ def main():
     
     config = get_config_dict()
 
-    re_process = False
-
-    subject_folder_list = list(config["data_path"].glob('*'))
+    
+    subject_folder_list = sorted(list(config["data_path"].glob('*')))
     # subjects_list = [subject_folder.name for subject_folder in subject_folder_list]
     nb_subjects = len(subject_folder_list)
     nb_images = 0
@@ -89,19 +98,31 @@ def main():
 
         for image_nb, image_path in enumerate(subject_image_files_unique):
             preprocessed_image_path = Path(
-                str(image_path).replace("raw_data", "preprocessed_data").replace(".nii", ".nii.gz"))
+                str(image_path).replace("raw", "preprocessed").replace(".nii", ".nii.gz"))
             preprocessed_image_path.parent.mkdir(parents=True, exist_ok=True)
 
-            list_np_arrays = len(list(preprocessed_image_path.parent.glob("**/*.npz")))
-            if list_np_arrays > 0 and not re_process:
+            nb_processed_files = len(list(preprocessed_image_path.parent.glob("**/*.tiff")))
+            if nb_processed_files > 0 and not config["re_process"]:
                 continue
 
             start = time.time()
-            preprocessed_image_path_fsl = run_fsl_processing(image_path, preprocessed_image_path, config["reference_atlas_location"])
-            preprocessed_image_np = load_np_image(preprocessed_image_path_fsl)
+            try:
+                preprocessed_image_path_fsl = run_fsl_processing(image_path, preprocessed_image_path, config["reference_atlas_location"])
+                preprocessed_image_np = load_np_image(preprocessed_image_path_fsl)
+            except:
+                with open('load_error_list.txt', 'a') as the_file:
+                    the_file.write(f'{str(image_path)}\n')
+                continue
+
             normalized_image_np = intensity_normalization(preprocessed_image_np)
-            cropped_normalized_image_np = cropping(normalized_image_np)
-            save_np(cropped_normalized_image_np, image_path)
+
+            if config["axial_size"] is not None:
+                cropped_normalized_image_np = cropping(normalized_image_np,axial_size = config["axial_size"])
+            if config["save_2d"]:
+                save_2d(cropped_normalized_image_np, preprocessed_image_path)
+            else:
+                save_np(cropped_normalized_image_np, preprocessed_image_path)
+
             remove_nii_files(preprocessed_image_path)
 
             print(
@@ -109,7 +130,6 @@ def main():
                 f'processing time: {datetime.timedelta(seconds=time.time() - start)}')
             print(f" Subject {subject_folder.name}, image {preprocessed_image_path.parent.name}")
 
-        break
 
     print(f'Total processing time: {datetime.timedelta(seconds=time.time() - total_start)}')
 
