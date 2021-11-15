@@ -3,7 +3,7 @@ README.md
 # ADNI dataset imaging preprocessing
 
 
-Alzheimer’s Disease Neuroimaging Initiative **ADNI** T1-weighted MRI pre-processing for deep learning pipelines.
+Alzheimer’s Disease Neuroimaging Initiative **ADNI** T1-weighted MRI pre-processing for deep learning pipelines. Huge thanks to [Tian Xia](https://github.com/xiat0616) for sharing initial code.
 
 ### Raw data
 
